@@ -40,10 +40,13 @@ contract CryptoTwittos {
     // Make sure that the new price is higher than the old price
     require(newPrice > _twitto.price);
 
-    // Transfer value or push new id
+    // Transfer value
     if (msg.value > 0) {
       _twitto.stealer.transfer(msg.value);
-    } else {
+    }
+
+    // Push new Twitto if not existing
+    if (_twitto.price == 0) {
       twittoIds.push(id);
       twittosCounter++;
     }
