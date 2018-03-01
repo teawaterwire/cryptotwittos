@@ -8,6 +8,8 @@ contract("CryptoTwittos", async accounts => {
     let instance = await CryptoTwittos.deployed();
     await instance.steal(id, initialPrice);
     let twitto = await instance.twittos(id);
+    let firstTwittoId = await instance.twittoIds(0);
+    assert.equal(firstTwittoId, id);
     assert.equal(twitto[0], accounts[0]);
     assert.equal(twitto[1], initialPrice);
   });

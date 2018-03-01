@@ -13,6 +13,17 @@ contract CryptoTwittos {
   // Look up Twitto by ids
   mapping(uint => Twitto) public twittos;
 
+  // All Twitto ids and counter
+  uint[] public twittoIds;
+  uint twittosCounter;
+
+
+  // Get all twittoIds
+  function getTwittoIds() public view returns (uint[]) {
+    /* if (twittosCounter == 0) return new uint[](0); */
+    /* uint[] memory ids = new uint[](twittosCounter); */
+    return twittoIds;
+  }
 
   // Steal a Twitto by paying its price and setting a new one
   function steal(uint id, uint256 newPrice) payable public {
@@ -29,8 +40,13 @@ contract CryptoTwittos {
     // Make sure that the new price is higher than the old price
     require(newPrice > _twitto.price);
 
-    // Transfer value
-    if (msg.value > 0) _twitto.stealer.transfer(msg.value);
+    // Transfer value or push new id
+    if (msg.value > 0) {
+      _twitto.stealer.transfer(msg.value);
+    } else {
+      twittoIds.push(id);
+      twittosCounter++;
+    }
 
     // Store new stealer
     _twitto.stealer = msg.sender;
