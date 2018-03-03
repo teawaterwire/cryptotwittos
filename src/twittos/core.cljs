@@ -3,7 +3,8 @@
             [re-frame.core :as rf]
             [twittos.views :as views]
             [twittos.subs]
-            [twittos.events]))
+            [twittos.events]
+            ["web3" :as Web3]))
 
 (defn mount! []
   (js/console.log "Mounting...")

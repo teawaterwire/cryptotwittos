@@ -19,6 +19,8 @@
   "dependencies": {
     "create-react-class": "^15.6.3",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-dom": "^16.2.0",
+    "truffle-contract": "^3.0.4",
+    "web3": "^0.14.0"
   }
 }

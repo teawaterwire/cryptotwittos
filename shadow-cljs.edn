@@ -13,4 +13,5 @@
         :asset-paths "/js"
         :modules {:core {:entries [twittos.core]}}
         :devtools {:after-load twittos.core/mount!}
+        :compiler-options {:infer-externs :auto}
         }}}
