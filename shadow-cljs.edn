@@ -1,0 +1,14 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src"]
+
+ :dependencies
+ [[reagent "0.8.0-alpha2"]]
+
+ :builds
+ {:app {:target :browser
+        :output-dir "public/js"
+        :asset-paths "/js"
+        :modules {:main {:entries [twittos.main]}}
+        :devtools {:after-load twittos.main/mount}
+        }}}

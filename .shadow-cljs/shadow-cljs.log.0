@@ -1,0 +1,64 @@
+[2018-03-01 18:20:45 - INFO] XNIO version 3.3.8.Final
+[2018-03-01 18:20:45 - INFO] XNIO NIO Implementation Version 3.3.8.Final
+[2018-03-01 19:00:31 - INFO] XNIO version 3.3.8.Final
+[2018-03-01 19:00:31 - INFO] XNIO NIO Implementation Version 3.3.8.Final
+[2018-03-02 09:00:45 - INFO] XNIO version 3.3.8.Final
+[2018-03-02 09:00:45 - INFO] XNIO NIO Implementation Version 3.3.8.Final
+[2018-03-02 09:01:09 - WARNING] stale websocket client, no worker for build :app
+[2018-03-02 09:01:09 - WARNING] stale websocket client, no worker for build :app
+[2018-03-02 09:02:12 - WARNING] stale websocket client, please reload client :app
+[2018-03-02 09:02:12 - WARNING] stale websocket client, please reload client :app
+[2018-03-02 09:08:11 - INFO] XNIO version 3.3.8.Final
+[2018-03-02 09:08:11 - INFO] XNIO NIO Implementation Version 3.3.8.Final
+[2018-03-02 09:08:51 - WARNING] stale websocket client, please reload client :app
+[2018-03-02 09:08:51 - WARNING] stale websocket client, please reload client :app
+[2018-03-02 09:09:29 - INFO] XNIO version 3.3.8.Final
+[2018-03-02 09:09:29 - INFO] XNIO NIO Implementation Version 3.3.8.Final
+[2018-03-02 09:10:03 - INFO] XNIO version 3.3.8.Final
+[2018-03-02 09:10:03 - INFO] XNIO NIO Implementation Version 3.3.8.Final
+[2018-03-02 09:27:18 - INFO] XNIO version 3.3.8.Final
+[2018-03-02 09:27:18 - INFO] XNIO NIO Implementation Version 3.3.8.Final
+[2018-03-02 09:51:22 - WARNING] classpath update failed #object[java.io.File 0x5c8186bb /Users/theo/Code/ethereum/cryptotwitties/src/twittos/ahah.cljs]
+clojure.lang.ExceptionInfo: failed to inspect cljs file: file:/Users/theo/Code/ethereum/cryptotwitties/src/twittos/ahah.cljs {:tag :shadow.build.classpath/inspect-cljs, :resource-name "twittos/ahah.cljs", :url #object[java.net.URL 0xda201 "file:/Users/theo/Code/ethereum/cryptotwitties/src/twittos/ahah.cljs"]}
+	at clojure.core$ex_info.invokeStatic(core.clj:4739)
+	at clojure.core$ex_info.invoke(core.clj:4739)
+	at shadow.build.classpath$inspect_cljs$fn__18692.invoke(classpath.clj:170)
+	at shadow.build.classpath$inspect_cljs.invokeStatic(classpath.clj:161)
+	at shadow.build.classpath$inspect_cljs.invoke(classpath.clj:156)
+	at shadow.build.classpath$inspect_resource.invokeStatic(classpath.clj:206)
+	at shadow.build.classpath$inspect_resource.invoke(classpath.clj:198)
+	at shadow.build.classpath$index_file_add.invokeStatic(classpath.clj:714)
+	at shadow.build.classpath$index_file_add.invoke(classpath.clj:695)
+	at clojure.lang.Atom.swap(Atom.java:65)
+	at clojure.core$swap_BANG_.invokeStatic(core.clj:2346)
+	at clojure.core$swap_BANG_.invoke(core.clj:2337)
+	at shadow.build.classpath$file_add.invokeStatic(classpath.clj:857)
+	at shadow.build.classpath$file_add.invoke(classpath.clj:855)
+	at shadow.cljs.devtools.server.reload_classpath$process_update$fn__24120.invoke(reload_classpath.clj:30)
+	at shadow.cljs.devtools.server.reload_classpath$process_update.invokeStatic(reload_classpath.clj:23)
+	at shadow.cljs.devtools.server.reload_classpath$process_update.invoke(reload_classpath.clj:21)
+	at clojure.lang.PersistentVector.reduce(PersistentVector.java:341)
+	at clojure.core$reduce.invokeStatic(core.clj:6747)
+	at clojure.core$reduce.invoke(core.clj:6730)
+	at shadow.cljs.devtools.server.reload_classpath$process_updates.invokeStatic(reload_classpath.clj:45)
+	at shadow.cljs.devtools.server.reload_classpath$process_updates.invoke(reload_classpath.clj:38)
+	at shadow.cljs.devtools.server.reload_classpath$watch_loop.invokeStatic(reload_classpath.clj:75)
+	at shadow.cljs.devtools.server.reload_classpath$watch_loop.invoke(reload_classpath.clj:63)
+	at shadow.cljs.devtools.server.reload_classpath$start$fn__24152.invoke(reload_classpath.clj:92)
+	at clojure.core.async$thread_call$fn__13302.invoke(async.clj:441)
+	at clojure.lang.AFn.run(AFn.java:22)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: clojure.lang.ExceptionInfo: file is empty {:resource-name "twittos/ahah.cljs"}
+	at clojure.core$ex_info.invokeStatic(core.clj:4739)
+	at clojure.core$ex_info.invoke(core.clj:4739)
+	at shadow.build.cljs_bridge$get_resource_info.invokeStatic(cljs_bridge.clj:38)
+	at shadow.build.cljs_bridge$get_resource_info.invoke(cljs_bridge.clj:24)
+	at shadow.build.classpath$inspect_cljs$fn__18692.invoke(classpath.clj:162)
+	... 27 more
+
+[2018-03-02 17:24:00 - INFO] XNIO version 3.3.8.Final
+[2018-03-02 17:24:00 - INFO] XNIO NIO Implementation Version 3.3.8.Final
+[2018-03-02 17:24:49 - WARNING] stale websocket client, no worker for build :app
+[2018-03-02 17:24:49 - WARNING] stale websocket client, no worker for build :app
