@@ -11,6 +11,6 @@
  {:app {:target :browser
         :output-dir "public/js"
         :asset-paths "/js"
-        :modules {:main {:entries [twittos.main]}}
-        :devtools {:after-load twittos.main/mount}
+        :modules {:core {:entries [twittos.core]}}
+        :devtools {:after-load twittos.core/mount!}
         }}}
