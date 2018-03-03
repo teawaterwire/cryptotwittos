@@ -3,7 +3,9 @@
  ["src"]
 
  :dependencies
- [[reagent "0.8.0-alpha2"]]
+ [[reagent "0.8.0-alpha2"]
+  [re-frame "0.10.5"]
+  ]
 
  :builds
  {:app {:target :browser

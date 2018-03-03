@@ -3,5 +3,5 @@
             [twittos.ahah :refer [ahah]]))
 
 (defn ^:export mount []
-  (js/console.log "INIT")
+  (js/console.log "Mounting...")
   (reagent/render [ahah] (js/document.getElementById "app")))
