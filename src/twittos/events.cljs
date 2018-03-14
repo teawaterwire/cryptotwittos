@@ -22,6 +22,20 @@
    (update db k inc)))
 
 (rf/reg-event-fx
+ :search-twitter
+ (fn [{{:keys [query]} :db}]
+   {:http-xhrio {:method :get
+                 :uri (str db/twitter-search-url query)
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success [:display-twittos]}}))
+
+(rf/reg-event-db
+ :display-twittos
+ (fn [db [_ twittos]]
+   (let [twittos' (map #(select-keys % [:id_str :screen_name :name :description :profile_image_url_https]) twittos)]
+     (assoc db :results twittos'))))
+
+(rf/reg-event-fx
  :get-contract
  (fn []
    {:http-xhrio {:method :get
