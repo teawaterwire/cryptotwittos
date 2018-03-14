@@ -4,11 +4,13 @@
             [twittos.views :as views]
             [twittos.subs]
             [twittos.events]
-            ["web3" :as Web3]))
+            [day8.re-frame.http-fx]
+            [district0x.re-frame.web3-fx]))
 
 (defn mount! []
   (js/console.log "Mounting...")
-  (reagent/render [views/main] (js/document.getElementById "app")))
+  (reagent/render [views/main] (js/document.getElementById "app"))
+  (js/console.log "...done!"))
 
 (defn ^:export init []
   (rf/dispatch-sync [:init])
