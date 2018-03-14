@@ -36,6 +36,17 @@
      (assoc db :results twittos'))))
 
 (rf/reg-event-fx
+ :steal
+ (fn [{:keys [db]} [_ id-str price]]
+   {:web3/call {:web3 (:web3 db)
+                :fns [{:instance (:instance db)
+                       :fn :steal
+                       :args [id-str price]
+                       :tx-opts {:from (web3-eth/coinbase (:web3 db))}
+                       :on-tx-success [:steal-success]
+                       :on-tx-error [:steal-error]}]}}))
+
+(rf/reg-event-fx
  :get-contract
  (fn []
    {:http-xhrio {:method :get
@@ -62,10 +73,8 @@
 (rf/reg-event-fx
  :get-twittos
  (fn [{:keys [db]}]
-   ; (console.log 44)
    {:web3/call {:web3 (:web3 db)
-                :fns [{
-                       :instance (:instance db)
+                :fns [{:instance (:instance db)
                        :fn :get-twitto-ids
                        ; :fn cljs-web3.eth/accounts
                        ; :args []

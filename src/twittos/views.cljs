@@ -38,6 +38,7 @@
        [:div.description description]
        [:div.extra
         [:div.ui.right.floated.purple.button
+         {:on-click #(rf/dispatch [:steal id_str 10000])}
          "Steal"
          [:i.icon.right.user.secret]]
         [:div.ui.label.black (rand-int 3123123123) " Gwei"]]]])])
