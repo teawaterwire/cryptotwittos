@@ -15,14 +15,39 @@ contract CryptoTwittos {
 
   // All Twitto ids and counter
   uint[] public twittoIds;
-  uint twittosCounter;
+  uint public twittosCounter;
 
 
-  // Get all twittoIds
-  function getTwittoIds() public view returns (uint[]) {
-    /* if (twittosCounter == 0) return new uint[](0); */
-    /* uint[] memory ids = new uint[](twittosCounter); */
-    return twittoIds;
+  // Get twittoIds
+  function getTwittoIds(bool all) public view returns (uint[]) {
+    // Return empty array if counter is zero
+    if (twittosCounter == 0) return new uint[](0);
+
+    if (all) {
+      // Return all of them
+      return twittoIds;
+
+    } else {
+      // Create memory array to store filtered ids
+      uint[] memory filteredIds = new uint[](twittosCounter);
+      // Store number of belongings
+      uint twittosCount = 0;
+
+      for (uint i = 0; i < twittosCounter; i++) {
+        // Check if stealer is sender
+        if (twittos[twittoIds[i]].stealer == msg.sender) {
+          filteredIds[twittosCount] = twittoIds[i];
+          twittosCount++;
+        }
+      }
+
+      // Copy the filteredIds array into a smaller array
+      uint[] memory trophies = new uint[](twittosCount);
+      for (uint j = 0; j < twittosCount; j++) {
+        trophies[j] = filteredIds[j];
+      }
+      return trophies;
+    }
   }
 
   // Steal a Twitto by paying its price and setting a new one

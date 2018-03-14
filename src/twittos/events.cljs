@@ -3,6 +3,7 @@
             [twittos.db :as db]
             [ajax.core :as ajax]
             [cljs-web3.eth :as web3-eth]
+            [clojure.string :as str]
             ; ["truffle-contract" :as contract]
             ))
 
@@ -27,13 +28,32 @@
    {:http-xhrio {:method :get
                  :uri (str db/twitter-search-url query)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success [:display-twittos]}}))
+                 :on-success [:display-twittos :results]}}))
+
+(rf/reg-event-fx
+ :lookup-twitter
+ (fn [_ [_ k ids]]
+   (console.log ids)
+   {:http-xhrio {:method :get
+                 :uri (str db/twitter-lookup-url (str/join "," (map #(.toNumber %) ids)))
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success [:display-twittos k]}}))
+
+(rf/reg-event-fx
+ :get-trophies
+ (fn [{:keys [db]}]
+   {:web3/call {:web3 (:web3 db)
+                :fns [{:instance (:instance db)
+                       :fn :get-twitto-ids
+                       :args [false]
+                       :on-success [:lookup-twitter :trophies]
+                       :on-error [:get-trophies-error]}]}}))
 
 (rf/reg-event-db
  :display-twittos
- (fn [db [_ twittos]]
+ (fn [db [_ k twittos]]
    (let [twittos' (map #(select-keys % [:id_str :screen_name :name :description :profile_image_url_https]) twittos)]
-     (assoc db :results twittos'))))
+     (assoc db k twittos'))))
 
 (rf/reg-event-fx
  :steal
@@ -76,8 +96,7 @@
    {:web3/call {:web3 (:web3 db)
                 :fns [{:instance (:instance db)
                        :fn :get-twitto-ids
-                       ; :fn cljs-web3.eth/accounts
-                       ; :args []
+                       :args [true]
                        :on-success [:get-twittos-success]
                        :on-error [:get-twittos-error]}]}}))
 (rf/reg-event-db
