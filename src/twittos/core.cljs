@@ -8,6 +8,7 @@
             [district0x.re-frame.web3-fx]))
 
 (defn mount! []
+  (rf/clear-subscription-cache!)
   (js/console.log "Mounting...")
   (reagent/render [views/main] (js/document.getElementById "app"))
   (js/console.log "...done!"))

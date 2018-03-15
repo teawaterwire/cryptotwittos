@@ -64,7 +64,9 @@
 
 (defn trophies-col []
   [:div.column
-   [:h1.ui.dividing.header "Your Trophies"]
+   [:h1.ui.dividing.header
+    "Your Trophies" 
+    [:span.ui.label.black @(rf/subscribe [:get-trophies-value])]]
    [:div.ui.button {:on-click #(rf/dispatch [:get-trophies])} "Get Trophies"]
    [:div.ui.items
     (for [{:keys [id_str] :as trophy} @(rf/subscribe [:get :trophies])]
