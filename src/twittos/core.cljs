@@ -15,4 +15,5 @@
 
 (defn ^:export init []
   (rf/dispatch-sync [:init])
+  (rf/dispatch [:get-contract])
   (mount!))

@@ -56,8 +56,8 @@
 (defn search-col []
   [:div.column
    [:h1.ui.dividing.header.purple "CryptoTwittos"]
-   [:div.ui.button.primary {:on-click #(rf/dispatch [:get-contract])} "Init contract"]
-   [:div.ui.button {:on-click #(rf/dispatch [:get-twittos])} "Get Twittos"]
+   ; [:div.ui.button.primary {:on-click #(rf/dispatch [:get-contract])} "Init contract"]
+   ; [:div.ui.button {:on-click #(rf/dispatch [:get-twittos])} "Get Twittos"]
    [search-bar]
    [results-items]])
 
@@ -66,7 +66,7 @@
    [:h1.ui.dividing.header
     "Your Trophies"
     [:span.ui.label.black @(rf/subscribe [:get-trophies-value])]]
-   [:div.ui.button {:on-click #(rf/dispatch [:get-trophies])} "Get Trophies"]
+   ; [:div.ui.button {:on-click #(rf/dispatch [:get-trophies])} "Get Trophies"]
    [:div.ui.items
     (for [{:keys [id_str] :as trophy} @(rf/subscribe [:get :trophies])]
       ^{:key id_str}

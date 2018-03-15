@@ -102,20 +102,14 @@
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success [:init-contract]}}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :init-contract
- (fn [{:keys [web3 network-id] :as db} [_ artifact]]
-   ; (let [abstr (contract artifact)]
-   ;   (.setProvider abstr (.-currentProvider web3))
-   ;   (.. abstr (deployed) (then #(rf/dispatch [:set :instance %])))
-   ;   db)
+ (fn [{{:keys [web3 network-id] :as db} :db} [_ artifact]]
    (let [{:keys [abi contractName networks]} artifact
          address (get-in networks [network-id :address])
          instance (web3-eth/contract-at web3 abi address)]
-     ; (console.log contractName (get-in networks [network-id :address]))
-     ; (console.log instance)
-     (assoc db :instance instance))
-   ))
+     {:db (assoc db :instance instance)
+      :dispatch [:get-trophies]})))
 
 (rf/reg-event-fx
  :get-twittos
