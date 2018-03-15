@@ -41,10 +41,11 @@
 
 (defn results-items []
   [:div.ui.items
-   (for [{:keys [id_str] :as result}
-         @(rf/subscribe [:get :results])]
-     ^{:key id_str}
-     [twitto-item result true])])
+   (let [trophies @(rf/subscribe [:get :trophies])]
+     (for [{:keys [id_str] :as result}
+           @(rf/subscribe [:get :results])]
+       ^{:key id_str}
+       [twitto-item result (not (some #{result} trophies))]))])
 
 (defn search-col []
   [:div.column
