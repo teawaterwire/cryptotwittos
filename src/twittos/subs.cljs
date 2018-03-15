@@ -35,6 +35,7 @@
     (rf/subscribe [:get :next-prices id-str])])
  (fn [[price-wei next-price]]
    (try
-     (.. (web3-core/to-big-number next-price)
-         (lt (web3-core/from-wei price-wei "finney")))
+     (not
+      (.. (web3-core/to-big-number next-price)
+          (gt (web3-core/from-wei price-wei "finney"))))
      (catch js/Object e true))))
