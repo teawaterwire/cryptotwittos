@@ -4,9 +4,7 @@
             [ajax.core :as ajax]
             [cljs-web3.core :as web3-core]
             [cljs-web3.eth :as web3-eth]
-            [clojure.string :as str]
-            ; ["truffle-contract" :as contract]
-            ))
+            [clojure.string :as str]))
 
 (rf/reg-event-db
  :init
@@ -26,10 +24,17 @@
 (rf/reg-event-fx
  :search-twitter
  (fn [{{:keys [query]} :db}]
-   {:http-xhrio {:method :get
+   {:dispatch [:set :searching? true]
+    :http-xhrio {:method :get
                  :uri (str db/twitter-search-url query)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success [:assoc-twittos :results]}}))
+                 :on-success [:search-twitter-success]
+                 :on-error [:set :searching? false]}}))
+
+(rf/reg-event-fx
+ :search-twitter-success
+ (fn [_ [_ twittos]]
+   {:dispatch-n [[:set :searching? false] [:assoc-twittos :results twittos]]}))
 
 (rf/reg-event-fx
  :lookup-twitter
@@ -42,7 +47,7 @@
 (rf/reg-event-fx
  :get-trophies
  (fn [{:keys [db]} ev]
-   (console.log ev)
+   ; (console.log ev)
    {:web3/call {:web3 (:web3 db)
                 :fns [{:instance (:instance db)
                        :fn :get-twitto-ids
@@ -72,18 +77,18 @@
      {:db (assoc db k twittos')
       :dispatch-n (for [id-str (map :id_str twittos')] [:lookup-twitto id-str])})))
 
-; (rf/reg-event-db
-;  :assoc-twittos
-;  (fn [db [_ k twittos]]
-;    (let [twittos' (map #(select-keys % [:id_str :screen_name :name :description :profile_image_url_https]) twittos)]
-;      (assoc db k twittos'))))
+(rf/reg-event-fx
+ :steal-end
+ (fn [_ [_ id-str]]
+   {:dispatch-n [[:set :stealing? id-str false] [:get-trophies]]}))
 
 (rf/reg-event-fx
  :steal
  (fn [{:keys [db]} [_ id-str]]
    (let [price (-> (get-in db [:next-prices id-str])
                    (web3-core/to-wei "finney"))]
-     {:web3/call {:web3 (:web3 db)
+     {:dispatch [:set :stealing? id-str true]
+      :web3/call {:web3 (:web3 db)
                   :fns [{:instance (:instance db)
                          :fn :steal
                          :args [id-str price]
@@ -91,7 +96,7 @@
                                    :value (get-in db [:twittos id-str :price] 0)}
                          :on-tx-success [:get-trophies]
                          :on-tx-error [:steal-error]
-                         :on-tx-receipt [:get-trophies]}]}})))
+                         :on-tx-receipt [:steal-end id-str]}]}})))
 
 (rf/reg-event-fx
  :get-contract
@@ -123,7 +128,7 @@
 (rf/reg-event-db
  :get-twittos-error
  (fn [db [_ error]]
-   (console.log error "ERRIR")
+   (console.log error "ERROR")
    db))
 
 (rf/reg-event-db

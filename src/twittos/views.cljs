@@ -6,9 +6,11 @@
   [:div.ui.huge.fluid.input.action
    [:input {:type "text" :placeholder "Search for Twittos"
             :value @(rf/subscribe [:get :query])
+            :on-key-down #(if (= (.-which %) 13) (rf/dispatch [:search-twitter]))
             :on-change #(rf/dispatch [:set :query (.. % -target -value)])}]
    [:button.ui.icon.button.purple
-    {:on-click #(rf/dispatch [:search-twitter])}
+    {:on-click #(rf/dispatch [:search-twitter])
+     :class (if @(rf/subscribe [:get :searching?]) "loading")}
     [:i.icon.search]]])
 
 (defn results-cards []
@@ -41,6 +43,7 @@
                  :value @(rf/subscribe [:get :next-prices id_str])}]
         [:button.ui.purple.right.labeled.icon.button
          {:on-click #(rf/dispatch [:steal id_str])
+          :class (if @(rf/subscribe [:get :stealing? id_str]) "loading")
           :disabled @(rf/subscribe [:disabled? id_str])}
          [:i.icon.right.user.secret]
          "Steal"]])]]])
