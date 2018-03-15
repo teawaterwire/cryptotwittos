@@ -33,16 +33,15 @@
     [:div.meta "@" screen_name]
     [:div.description description]
     [:div.extra
-     (let [price-wei @(rf/subscribe [:get :twittos id_str :price])
-           price (web3-core/from-wei price-wei "finney")]
-       [:div.ui.label.black (if (= (.toString price) "0") "FREE" (str price " 💸Finney"))])
+     [:div.ui.label.black @(rf/subscribe [:get-price id_str])]
      (if stealable?
        [:div.ui.action.input
         [:input {:type "text" :placeholder "Set next price in Finney"
                  :on-change #(rf/dispatch [:set :next-prices id_str (.. % -target -value)])
                  :value @(rf/subscribe [:get :next-prices id_str])}]
         [:button.ui.purple.right.labeled.icon.button
-         {:on-click #(rf/dispatch [:steal id_str])}
+         {:on-click #(rf/dispatch [:steal id_str])
+          :disabled @(rf/subscribe [:disabled? id_str])}
          [:i.icon.right.user.secret]
          "Steal"]])]]])
 
@@ -65,7 +64,7 @@
 (defn trophies-col []
   [:div.column
    [:h1.ui.dividing.header
-    "Your Trophies" 
+    "Your Trophies"
     [:span.ui.label.black @(rf/subscribe [:get-trophies-value])]]
    [:div.ui.button {:on-click #(rf/dispatch [:get-trophies])} "Get Trophies"]
    [:div.ui.items
