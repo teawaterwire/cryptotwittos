@@ -2,6 +2,7 @@
   (:require [re-frame.core :as rf]
             [twittos.db :as db]
             [ajax.core :as ajax]
+            ; [cljs-web3.core :as web3-core]
             [cljs-web3.eth :as web3-eth]
             [clojure.string :as str]
             ; ["truffle-contract" :as contract]
@@ -33,15 +34,15 @@
 (rf/reg-event-fx
  :lookup-twitter
  (fn [_ [_ k ids]]
-   (console.log ids)
    {:http-xhrio {:method :get
-                 :uri (str db/twitter-lookup-url (str/join "," (map #(.toNumber %) ids)))
+                 :uri (str db/twitter-lookup-url (str/join "," (map #(.toString % 10) ids)))
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success [:display-twittos k]}}))
 
 (rf/reg-event-fx
  :get-trophies
- (fn [{:keys [db]}]
+ (fn [{:keys [db]} ev]
+   (console.log ev)
    {:web3/call {:web3 (:web3 db)
                 :fns [{:instance (:instance db)
                        :fn :get-twitto-ids
@@ -63,8 +64,9 @@
                        :fn :steal
                        :args [id-str price]
                        :tx-opts {:from (web3-eth/coinbase (:web3 db))}
-                       :on-tx-success [:steal-success]
-                       :on-tx-error [:steal-error]}]}}))
+                       :on-tx-success [:get-trophies]
+                       :on-tx-error [:steal-error]
+                       :on-tx-receipt [:get-trophies]}]}}))
 
 (rf/reg-event-fx
  :get-contract
