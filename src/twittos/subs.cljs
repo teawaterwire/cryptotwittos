@@ -3,5 +3,5 @@
 
 (rf/reg-sub
  :get
- (fn [db [_ k]]
-   (get db k)))
+ (fn [db [_ & ks]]
+   (get-in db ks)))

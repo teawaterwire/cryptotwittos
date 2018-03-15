@@ -1,5 +1,6 @@
 (ns twittos.views
-  (:require [re-frame.core :as rf]))
+  (:require [re-frame.core :as rf]
+            [cljs-web3.core :as web3-core]))
 
 (defn search-bar []
   [:div.ui.huge.fluid.input.action
@@ -32,12 +33,18 @@
     [:div.meta "@" screen_name]
     [:div.description description]
     [:div.extra
+     (let [price-wei @(rf/subscribe [:get :twittos id_str :price])
+           price (web3-core/from-wei price-wei "finney")]
+       [:div.ui.label.black (if (= (.toString price) "0") "FREE" (str price " 💸Finney"))])
      (if stealable?
-       [:div.ui.right.floated.purple.button
-        {:on-click #(rf/dispatch [:steal id_str 10000])}
-        "Steal"
-        [:i.icon.right.user.secret]])
-     [:div.ui.label.black (rand-int 3123123123) " Gwei"]]]])
+       [:div.ui.action.input
+        [:input {:type "text" :placeholder "Set next price in Finney"
+                 :on-change #(rf/dispatch [:set :next-prices id_str (.. % -target -value)])
+                 :value @(rf/subscribe [:get :next-prices id_str])}]
+        [:button.ui.purple.right.labeled.icon.button
+         {:on-click #(rf/dispatch [:steal id_str])}
+         [:i.icon.right.user.secret]
+         "Steal"]])]]])
 
 (defn results-items []
   [:div.ui.items
