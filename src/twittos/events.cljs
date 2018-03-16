@@ -162,9 +162,13 @@
 
 (rf/reg-event-fx
  :new-steal
- (fn [{db :db} [_ ev]]
-   (let [new-db (update db :steals conj (update ev :id str))
-         id-strs (dedupe (map #(str (:id %)) (:steals new-db)))]
+ (fn [{db :db} [_ {:keys [id price new-price] :as steal}]]
+   (let [new-steals (conj (:steals db)
+                          (merge steal {:id (str id)
+                                        :price (str price)
+                                        :new-price (str new-price)}))
+         new-db (assoc db :steals (->> new-steals (distinct) (take 10)))
+         id-strs (distinct (map #(str (:id %)) (:steals new-db)))]
      {:db new-db
       :dispatch-debounce [{:id :lookup-twitter
                            :timeout 400
