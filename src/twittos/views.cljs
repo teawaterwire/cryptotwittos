@@ -26,15 +26,26 @@
        [:div.meta "@" screen_name]
        [:div.description description]]])])
 
-(defn twitto-item [{:keys [id_str name screen_name description profile_image_url_https]} stealable?]
+(defn ->hex
+    ([addr] (->hex addr false))
+    ([addr s?] (str (if s? "#") (subs addr 2 8))))
+
+(defn steal-tx [owner stealer price]
+  (if stealer [:div
+               [:span.ui.label {:style {:background-color (->hex owner true)}} (->hex owner)]
+               [:span.ui.label (str price)]
+               [:span.ui.label (->hex stealer)]]))
+
+(defn twitto-item [{:keys [id_str name screen_name description profile_image_url_https owner stealer price stealable?]}]
   [:div.item
    [:a.ui.image.tiny
     [:img {:src (.replace profile_image_url_https "_normal" "")}]]
    [:div.content
     [:div.header name]
     [:div.meta "@" screen_name]
-    [:div.description description]
+    (if-not stealer [:div.description description])
     [:div.extra
+     [steal-tx owner stealer price]
      [:div.ui.label.black @(rf/subscribe [:get-price id_str])]
      (if stealable?
        [:div.ui.action.input
@@ -50,11 +61,9 @@
 
 (defn results-items []
   [:div.ui.items
-   (let [trophies @(rf/subscribe [:get :trophies])]
-     (for [{:keys [id_str] :as result}
-           @(rf/subscribe [:get :results])]
-       ^{:key id_str}
-       [twitto-item result (not (some #{result} trophies))]))])
+   (for [{:keys [id_str] :as result} @(rf/subscribe [:results])]
+     ^{:key id_str}
+     [twitto-item result])])
 
 (defn search-col []
   [:div.column
@@ -68,16 +77,23 @@
   [:div.column
    [:h1.ui.dividing.header
     "Your Trophies"
-    [:span.ui.label.black @(rf/subscribe [:get-trophies-value])]]
+    [:span.ui.label.black @(rf/subscribe [:trophies-value])]]
    ; [:div.ui.button {:on-click #(rf/dispatch [:get-trophies])} "Get Trophies"]
+   ; (str @(rf/subscribe [:trophies]))
    [:div.ui.items
-    (for [{:keys [id_str] :as trophy} @(rf/subscribe [:get :trophies])]
+    (for [{:keys [id_str] :as trophy} @(rf/subscribe [:trophies])
+          :when (some? id_str)]
       ^{:key id_str}
-      [twitto-item trophy false])]])
+      [twitto-item trophy])]])
 
 (defn steals-col []
   [:div.column
-   [:h1.ui.dividing.header "Live Steals"]])
+   [:h1.ui.dividing.header "Live Steals"]
+   [:div.ui.items
+    (for [{:keys [id_str new-price] :as stolen-twitto} @(rf/subscribe [:stolen-twittos])
+          :when (some? id_str)]
+      ^{:key (str id_str new-price)}
+      [twitto-item stolen-twitto])]])
 
 (defn main []
   [:div.ui.stackable.three.column.grid

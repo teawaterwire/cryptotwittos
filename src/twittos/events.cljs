@@ -16,10 +16,90 @@
  (fn [db [_ & args]]
    (assoc-in db (butlast args) (last args))))
 
+;; -------------------
+;; CONTRACT
+;; -------------------
+
+(rf/reg-event-fx
+ :get-contract
+ (fn []
+   {:http-xhrio {:method :get
+                 :uri "CryptoTwittos.json"
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success [:init-contract]}}))
+
+(rf/reg-event-fx
+ :init-contract
+ (fn [{{:keys [web3 network-id] :as db} :db} [_ artifact]]
+   (let [{:keys [abi contractName networks]} artifact
+         address (get-in networks [network-id :address])
+         instance (web3-eth/contract-at web3 abi address)]
+     {:db (assoc db :instance instance)
+      :dispatch-n [[:get-trophies]
+                   [:watch-steals]]})))
+
+;; -------------------
+;; TROPHIES
+;; -------------------
+
+(rf/reg-event-fx
+ :get-trophies
+ (fn [{:keys [db]}]
+   {:web3/call {:web3 (:web3 db)
+                :fns [{:instance (:instance db)
+                       :fn :get-twitto-ids
+                       :args [false]
+                       :on-success [:get-trophies-success]
+                       :on-error [:get-trophies-error]}]}}))
+
+(rf/reg-event-fx
+ :get-trophies-success
+ (fn [{db :db} [_ ids]]
+   (let [id-strs (map str ids)]
+     {:db (assoc db :trophies id-strs)
+      :dispatch [:lookup-twitter id-strs]
+      :dispatch-n (for [id-str id-strs] [:lookup-twitto id-str])})))
+
+;; -------------------
+;; LOOKUP
+;; -------------------
+
+(rf/reg-event-fx
+ :lookup-twitter
+ (fn [{db :db} [_ id-strs]]
+   (let [twitteros-id-strs-set (set (keys (:twitteros db)))
+         id-strs-remaining (remove twitteros-id-strs-set id-strs)]
+     (if (empty? id-strs) {}
+       {:http-xhrio {:method :get
+                     :uri (str db/twitter-lookup-url (str/join "," id-strs-remaining))
+                     :response-format (ajax/json-response-format {:keywords? true})
+                     :on-success [:store-twitteros]}}))))
+
+(rf/reg-event-fx
+ :store-twitteros
+ (fn [{db :db} [_ twitteros]]
+   (let [twitteros' (map #(select-keys % [:id_str :screen_name :name :description :profile_image_url_https]) twitteros)
+         twitteros'' (zipmap (map :id_str twitteros') twitteros')]
+     {:db (update db :twitteros merge twitteros'')})))
+
+(rf/reg-event-fx
+ :lookup-twitto
+ (fn [{:keys [db]} [_ twitter-id-str]]
+   {:web3/call {:web3 (:web3 db)
+                :fns [{:instance (:instance db)
+                       :fn :twittos
+                       :args [twitter-id-str]
+                       :on-success [:assoc-twitto twitter-id-str]}]}}))
+
 (rf/reg-event-db
- :inc
- (fn [db [_ k]]
-   (update db k inc)))
+ :assoc-twitto
+ (fn [db [_ id-str twitto]]
+   (let [[stealer price] twitto]
+     (assoc-in db [:twittos id-str] {:stealer stealer :price price}))))
+
+;; -------------------
+;; SEARCH
+;; -------------------
 
 (rf/reg-event-fx
  :search-twitter
@@ -33,54 +113,16 @@
 
 (rf/reg-event-fx
  :search-twitter-success
- (fn [_ [_ twittos]]
-   {:dispatch-n [[:set :searching? false] [:assoc-twittos :results twittos]]}))
+ (fn [{db :db} [_ twitteros]]
+   (let [id-strs (map :id_str twitteros)]
+     {:db (assoc db :results id-strs)
+      :dispatch-n (concat [[:set :searching? false]
+                           [:store-twitteros twitteros]]
+                          (for [id-str id-strs] [:lookup-twitto id-str]))})))
 
-(rf/reg-event-fx
- :lookup-twitter
- (fn [_ [_ k ids]]
-   {:http-xhrio {:method :get
-                 :uri (str db/twitter-lookup-url (str/join "," (map #(.toString % 10) ids)))
-                 :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success [:assoc-twittos k]}}))
-
-(rf/reg-event-fx
- :get-trophies
- (fn [{:keys [db]} ev]
-   ; (console.log ev)
-   {:web3/call {:web3 (:web3 db)
-                :fns [{:instance (:instance db)
-                       :fn :get-twitto-ids
-                       :args [false]
-                       :on-success [:lookup-twitter :trophies]
-                       :on-error [:get-trophies-error]}]}}))
-
-(rf/reg-event-db
- :assoc-twitto
- (fn [db [_ id-str twitto]]
-   (let [[stealer price] twitto]
-     (assoc-in db [:twittos id-str] {:stealer stealer :price price}))))
-
-(rf/reg-event-fx
- :lookup-twitto
- (fn [{:keys [db]} [_ twitter-id-str]]
-   {:web3/call {:web3 (:web3 db)
-                :fns [{:instance (:instance db)
-                       :fn :twittos
-                       :args [twitter-id-str]
-                       :on-success [:assoc-twitto twitter-id-str]}]}}))
-
-(rf/reg-event-fx
- :assoc-twittos
- (fn [{db :db} [_ k twittos]]
-   (let [twittos' (map #(select-keys % [:id_str :screen_name :name :description :profile_image_url_https]) twittos)]
-     {:db (assoc db k twittos')
-      :dispatch-n (for [id-str (map :id_str twittos')] [:lookup-twitto id-str])})))
-
-(rf/reg-event-fx
- :steal-end
- (fn [_ [_ id-str]]
-   {:dispatch-n [[:set :stealing? id-str false] [:get-trophies]]}))
+;; -------------------
+;; STEAL
+;; -------------------
 
 (rf/reg-event-fx
  :steal
@@ -99,40 +141,32 @@
                          :on-tx-receipt [:steal-end id-str]}]}})))
 
 (rf/reg-event-fx
- :get-contract
- (fn []
-   {:http-xhrio {:method :get
-                 :uri "CryptoTwittos.json"
-                 ; :response-format (ajax/json-response-format {:raw true})
-                 :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success [:init-contract]}}))
+ :steal-end
+ (fn [_ [_ id-str]]
+   {:dispatch-n [[:set :stealing? id-str false] [:get-trophies]]}))
+
+;; -------------------
+;; EVENTS
+;; -------------------
 
 (rf/reg-event-fx
- :init-contract
- (fn [{{:keys [web3 network-id] :as db} :db} [_ artifact]]
-   (let [{:keys [abi contractName networks]} artifact
-         address (get-in networks [network-id :address])
-         instance (web3-eth/contract-at web3 abi address)]
-     {:db (assoc db :instance instance)
-      :dispatch [:get-trophies]})))
-
-(rf/reg-event-fx
- :get-twittos
+ :watch-steals
  (fn [{:keys [db]}]
-   {:web3/call {:web3 (:web3 db)
-                :fns [{:instance (:instance db)
-                       :fn :get-twitto-ids
-                       :args [true]
-                       :on-success [:get-twittos-success]
-                       :on-error [:get-twittos-error]}]}}))
-(rf/reg-event-db
- :get-twittos-error
- (fn [db [_ error]]
-   (console.log error "ERROR")
-   db))
+   {:web3/watch-events {:events [{:id :steals-watcher
+                                  :event :stealEvent
+                                  :instance (:instance db)
+                                  :block-filter-opts {:from-block 0 :to-block "latest"}
+                                  :on-success [:new-steal]}]}}))
 
-(rf/reg-event-db
- :get-twittos-success
- (fn [db [_ twittos]]
-   (console.log twittos (map #(.toNumber %) twittos) "TWITTOS")
-   (assoc db :twittos twittos)))
+;; Watch owned steals so that they trigger a [:get-trophies]
+
+(rf/reg-event-fx
+ :new-steal
+ (fn [{db :db} [_ ev]]
+   (let [new-db (update db :steals conj ev)
+         id-strs (dedupe (map #(str (:id %)) (:steals new-db)))]
+     {:db new-db
+      :dispatch-debounce [{:id :lookup-twitter
+                           :timeout 400
+                           :action :dispatch
+                           :event [:lookup-twitter id-strs]}]})))

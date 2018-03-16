@@ -18,6 +18,16 @@ contract CryptoTwittos {
   uint public twittosCounter;
 
 
+  // Fire event when steal happens
+  event stealEvent(
+    uint indexed id,
+    address indexed owner,
+    uint price,
+    address indexed stealer,
+    uint newPrice
+  );
+
+
   // Get twittoIds
   function getTwittoIds(bool all) public view returns (uint[]) {
     // Return empty array if counter is zero
@@ -75,6 +85,9 @@ contract CryptoTwittos {
       twittoIds.push(id);
       twittosCounter++;
     }
+
+    // Trigger event
+    stealEvent(id, _twitto.stealer, _twitto.price, msg.sender, newPrice);
 
     // Store new stealer
     _twitto.stealer = msg.sender;

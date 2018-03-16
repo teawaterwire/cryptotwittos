@@ -8,7 +8,7 @@
    (get-in db ks)))
 
 (rf/reg-sub
- :get-trophies-value
+ :trophies-value
  :<- [:get :trophies]
  :<- [:get :twittos]
  (fn [[trophies twittos]]
@@ -19,6 +19,34 @@
          ids (map :id_str trophies)
          prices (map get-price ids)]
      (str (reduce + prices) " 💸Finney"))))
+
+(rf/reg-sub
+ :trophies
+ :<- [:get :trophies]
+ :<- [:get :twitteros]
+ (fn [[trophies twitteros]]
+   (if-not (empty? twitteros)
+     (map #(get twitteros %) trophies))))
+
+(rf/reg-sub
+ :results
+ :<- [:get :results]
+ :<- [:get :twitteros]
+ :<- [:get :trophies]
+ (fn [[results twitteros trophies]]
+   (if-not (empty? twitteros)
+     (map #(-> (get twitteros %)
+               (assoc :stealable? (not (some #{%} trophies))))
+          results))))
+
+(rf/reg-sub
+ :stolen-twittos
+ :<- [:get :steals]
+ :<- [:get :twitteros]
+ (fn [[steals twitteros]]
+   (if-not (empty? twitteros)
+     (map #(merge (get twitteros (str (:id %))) %)
+          steals))))
 
 (rf/reg-sub
  :get-price

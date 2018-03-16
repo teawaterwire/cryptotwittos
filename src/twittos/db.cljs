@@ -5,6 +5,7 @@
    :network-id :5777
    :instance nil
    :query ""
+   :steals []
    :lol 0})
 
 (def twitter-proxy-url "https://silk-actress.glitch.me/")

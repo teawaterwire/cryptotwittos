@@ -5,7 +5,8 @@
             [twittos.subs]
             [twittos.events]
             [day8.re-frame.http-fx]
-            [district0x.re-frame.web3-fx]))
+            [district0x.re-frame.web3-fx]
+            [re-frame-fx.dispatch]))
 
 (defn mount! []
   (rf/clear-subscription-cache!)
