@@ -16,8 +16,7 @@
                      (-> (get-in twittos [id :price])
                          (web3-core/from-wei "finney")
                          (js/parseInt)))
-         ids (map :id_str trophies)
-         prices (map get-price ids)]
+         prices (map get-price trophies)]
      (str (reduce + prices) " 💸Finney"))))
 
 (rf/reg-sub
