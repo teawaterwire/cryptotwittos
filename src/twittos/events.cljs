@@ -163,10 +163,11 @@
 (rf/reg-event-fx
  :new-steal
  (fn [{db :db} [_ ev]]
-   (let [new-db (update db :steals conj ev)
+   (let [new-db (update db :steals conj (update ev :id str))
          id-strs (dedupe (map #(str (:id %)) (:steals new-db)))]
      {:db new-db
       :dispatch-debounce [{:id :lookup-twitter
                            :timeout 400
-                           :action :dispatch
-                           :event [:lookup-twitter id-strs]}]})))
+                           :action :dispatch-n
+                           :event (concat [[:lookup-twitter id-strs]]
+                                          (for [id-str id-strs] [:lookup-twitto id-str]))}]})))
