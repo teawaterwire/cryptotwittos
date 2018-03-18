@@ -42,8 +42,8 @@
 (defn twitto-item [{:keys [id_str name screen_name description profile_image_url_https owner stealer price stealable?]}]
   [:div.column
    [:div.ui.card.fluid
-    [:div.image
-     [:div.ui.right.ribbon.label.blue @(rf/subscribe [:get-price id_str])]
+    [:div.ui.image
+     [:div.ui.right.ribbon.label.green @(rf/subscribe [:get-price id_str])]
      [:img {:src (.replace profile_image_url_https "_normal" "")}]]
     [:div.content
      [:div.header name]
@@ -55,7 +55,7 @@
     [:img {:src (.replace profile_image_url_https "_normal" "")}]]
    [:div.content
     [:div.header name]
-    [:div.ui.right.floated.label.blue @(rf/subscribe [:get-price id_str])]
+    [:div.ui.right.floated.label.green @(rf/subscribe [:get-price id_str])]
     [:div.meta.orange-text "@" screen_name]
     (if-not stealer
       [:div.description description])
@@ -85,7 +85,7 @@
    [:h2.ui.dividing.header
     [:img.ui.image.logo {:src "/img/twittos.png"}]
     "Crypto" [:span.orange-text "Twittos"]
-    [:div.ui.sub.header "How to use?"]]
+    [:div.ui.sub.header "Steal 'Em All"]]
    [search-bar]
    [results-items]])
 
@@ -93,7 +93,7 @@
   [:div.column
    [:h2.ui.dividing.header
     "Your Trophies"
-    [:div.ui.label.blue.float-r.large
+    [:div.ui.label.green.float-r.large
      [:span.light "TOTAL VALUE: "]
      [:strong @(rf/subscribe [:trophies-value])]]
     [:div.ui.sub.header
