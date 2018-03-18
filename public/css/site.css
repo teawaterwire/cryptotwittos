@@ -5,3 +5,20 @@
 .p2 {
   padding: 2em;
 }
+
+.orange-text {
+  color: #fe9a76 !important;
+}
+
+.light {
+  font-weight: lighter;
+}
+
+.float-r {
+  float: right;
+}
+
+.logo {
+  float: left;
+  top: -5px;
+}

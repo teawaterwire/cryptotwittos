@@ -17,7 +17,7 @@
                          (web3-core/from-wei "finney")
                          (js/parseInt)))
          prices (map get-price trophies)]
-     (str (reduce + prices) " 💸Finney"))))
+     (str (reduce + prices) " F"))))
 
 (rf/reg-sub
  :trophies
@@ -53,7 +53,7 @@
    (rf/subscribe [:get :twittos id-str :price]))
  (fn [price-wei]
    (let [price (str (web3-core/from-wei price-wei "finney"))]
-     (if (= price "0") "FREE" (str price " 💸Finney")))))
+     (if (= price "0") "FREE" (str price " F")))))
 
 (rf/reg-sub
  :disabled?

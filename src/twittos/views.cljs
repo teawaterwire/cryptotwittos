@@ -1,14 +1,15 @@
 (ns twittos.views
   (:require [re-frame.core :as rf]
-            [cljs-web3.core :as web3-core]))
+            [cljs-web3.core :as web3-core]
+            [twittos.timer :refer [clock]]))
 
 (defn search-bar []
-  [:div.ui.huge.fluid.input.action
+  [:div.ui.massive.fluid.input.action
    [:input {:type "text" :placeholder "Search for Twittos"
             :value @(rf/subscribe [:get :query])
             :on-key-down #(if (= (.-which %) 13) (rf/dispatch [:search-twitter]))
             :on-change #(rf/dispatch [:set :query (.. % -target -value)])}]
-   [:button.ui.icon.button.purple
+   [:button.ui.icon.button.orange
     {:on-click #(rf/dispatch [:search-twitter])
      :class (if @(rf/subscribe [:get :searching?]) "loading")}
     [:i.icon.search]]])
@@ -27,56 +28,75 @@
        [:div.description description]]])])
 
 (defn steal-tx [owner stealer price]
-  (let [[owner stealer] (map #(subs % 2 8) [owner stealer])
-        ->icon (fn [u] [:span.ui.circular.label.empty {:style {:background-color (str "#" (subs u 2 8))}}])
+  (let [->icon (fn [u] [:span.ui.circular.label.empty {:style {:background-color (str "#" (subs u 2 8))}}])
         [icon-owner icon-stealer] (map ->icon  [owner stealer])]
     [:div
      icon-stealer
-     [:span.ui.circular.label (str (web3-core/from-wei price "finney")) " 💸Finney"]
+     [:i.angle.double.right.icon]
+     [:span.ui.label.orange.mini (str (web3-core/from-wei price "finney")) " Finney"]
+     [:i.angle.double.right.icon]
      icon-owner]))
 
 (defn twitto-item [{:keys [id_str name screen_name description profile_image_url_https owner stealer price stealable?]}]
+  [:div.column
+   [:div.ui.card.fluid
+    [:div.image
+     [:div.ui.right.ribbon.label.blue @(rf/subscribe [:get-price id_str])]
+     [:img {:src (.replace profile_image_url_https "_normal" "")}]]
+    [:div.content
+     [:div.header name]
+     [:div.meta.orange-text "@" screen_name]]]])
+
+(defn twitto-item' [{:keys [id_str name screen_name description profile_image_url_https owner stealer price stealable?]}]
   [:div.item
    [:a.ui.image.tiny
     [:img {:src (.replace profile_image_url_https "_normal" "")}]]
    [:div.content
     [:div.header name]
-    [:div.meta "@" screen_name]
-    [:div.description description]
+    [:div.ui.right.floated.label.blue @(rf/subscribe [:get-price id_str])]
+    [:div.meta.orange-text "@" screen_name]
+    (if-not stealer
+      [:div.description description])
     [:div.extra
      (if stealer
        [steal-tx owner stealer price])
-     [:div.ui.label.tag.black.large @(rf/subscribe [:get-price id_str])]
      (if stealable?
-       [:div.ui.action.input
+       [:div.ui.action.input.fluid
         [:input {:type "text" :placeholder "Set next price in Finney"
                  :on-change #(rf/dispatch [:set :next-prices id_str (.. % -target -value)])
                  :value @(rf/subscribe [:get :next-prices id_str])}]
-        [:button.ui.purple.right.labeled.icon.button
+        [:button.ui.orange.button
          {:on-click #(rf/dispatch [:steal id_str])
           :class (if @(rf/subscribe [:get :stealing? id_str]) "loading")
           :disabled @(rf/subscribe [:disabled? id_str])}
-         [:i.icon.right.user.secret]
          "Steal"]])]]])
 
 (defn results-items []
-  [:div.ui.items
+  [:div.ui.divided.items
+  ; [:div.ui.two.column.grid
    (for [{:keys [id_str] :as result} @(rf/subscribe [:results])]
      ^{:key id_str}
-     [twitto-item result])])
+     [twitto-item' result])])
 
 (defn search-col []
   [:div.column
-   [:h1.ui.dividing.header.purple "CryptoTwittos"]
+   [:h2.ui.dividing.header
+    [:img.ui.image.logo {:src "/img/twittos.png"}]
+    "Crypto" [:span.orange-text "Twittos"]
+    [:div.ui.sub.header "How to use?"]]
    [search-bar]
    [results-items]])
 
 (defn trophies-col []
   [:div.column
-   [:h1.ui.dividing.header
+   [:h2.ui.dividing.header
     "Your Trophies"
-    [:span.ui.label.black @(rf/subscribe [:trophies-value])]]
-   [:div.ui.items
+    [:div.ui.label.blue.float-r.large
+     [:span.light "TOTAL VALUE: "]
+     [:strong @(rf/subscribe [:trophies-value])]]
+    [:div.ui.sub.header
+     "1000 Finney (F) = 1 Ether"]]
+   [:div.ui.cards.two.column.grid
     (for [{:keys [id_str] :as trophy} @(rf/subscribe [:trophies])
           :when (some? id_str)]
       ^{:key id_str}
@@ -84,12 +104,15 @@
 
 (defn steals-col []
   [:div.column
-   [:h1.ui.dividing.header "Live Steals"]
-   [:div.ui.items
+   [:h2.ui.dividing.header
+    "Live Steals"
+    [:div.ui.sub.header
+     [clock]]]
+   [:div.ui.divided.items
     (for [{:keys [id_str new-price] :as stolen-twitto} @(rf/subscribe [:stolen-twittos])
           :when (some? id_str)]
       ^{:key (str id_str new-price)}
-      [twitto-item stolen-twitto])]])
+      [twitto-item' stolen-twitto])]])
 
 (defn main []
   [:div.ui.stackable.three.column.grid

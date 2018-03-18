@@ -55,7 +55,7 @@
 (rf/reg-event-fx
  :get-trophies-success
  (fn [{db :db} [_ ids]]
-   (let [id-strs (map str ids)]
+   (let [id-strs (reverse (map str ids))]
      {:db (assoc db :trophies id-strs)
       :dispatch [:lookup-twitter id-strs]
       :dispatch-n (for [id-str id-strs] [:lookup-twitto id-str])})))
