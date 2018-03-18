@@ -98,7 +98,7 @@
      [:strong @(rf/subscribe [:trophies-value])]]
     [:div.ui.sub.header
      "1000 Finney (F) = 1 Ether"]]
-   [:div.ui.cards.two.column.grid
+   [:div.ui.cards.two.column.relaxed.grid
     (for [{:keys [id_str] :as trophy} @(rf/subscribe [:trophies])
           :when (some? id_str)]
       ^{:key id_str}
@@ -117,7 +117,7 @@
       [twitto-item' stolen-twitto])]])
 
 (defn main []
-  [:div.ui.stackable.three.column.grid
+  [:div.ui.stackable.three.column.relaxed.grid
    [:div.row
     [search-col]
     [trophies-col]
