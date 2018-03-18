@@ -162,16 +162,26 @@
 
 (rf/reg-event-fx
  :new-steal
- (fn [{db :db} [_ {:keys [id price new-price] :as steal}]]
+ (fn [{db :db} [_ {:keys [id price new-price] :as steal} {:keys [block-hash]}]]
    (let [new-steals (conj (:steals db)
-                          (merge steal {:id (str id)
+                          (merge steal {:block block-hash
+                                        :id (str id)
                                         :price (str price)
                                         :new-price (str new-price)}))
          new-db (assoc db :steals (->> new-steals (distinct) (take 10)))
          id-strs (distinct (map #(str (:id %)) (:steals new-db)))]
      {:db new-db
+      :web3/call {:web3 (:web3 db)
+                  :fns [{:fn web3-eth/get-block
+                         :args [block-hash]
+                         :on-success [:block-details]}]}
       :dispatch-debounce [{:id :lookup-twitter
                            :timeout 400
                            :action :dispatch-n
                            :event (concat [[:lookup-twitter id-strs]]
                                           (for [id-str id-strs] [:lookup-twitto id-str]))}]})))
+
+(rf/reg-event-db
+ :block-details
+ (fn [db [_ {:keys [hash timestamp]}]]
+   (assoc-in db [:blocks hash] timestamp)))

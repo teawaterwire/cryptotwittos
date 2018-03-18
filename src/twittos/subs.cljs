@@ -1,5 +1,6 @@
 (ns twittos.subs
   (:require [re-frame.core :as rf]
+            [clojure.string :as str]
             [cljs-web3.core :as web3-core]))
 
 (rf/reg-sub
@@ -46,6 +47,18 @@
    (if-not (empty? twitteros)
      (map #(merge (get twitteros (str (:id %))) %)
           steals))))
+
+(rf/reg-sub
+ :time-block
+ :<- [:get :blocks]
+ (fn [blocks [_ block]]
+   (let [stamp (-> (get blocks block)
+                   (js/parseInt)
+                   (* 1000))
+         date (js/Date. stamp)]
+     (str (.. date (toDateString))
+          " — "
+          (-> date (.toTimeString) (str/split " ") (first))))))
 
 (rf/reg-sub
  :get-price

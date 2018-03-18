@@ -27,15 +27,17 @@
        [:div.meta "@" screen_name]
        [:div.description description]]])])
 
-(defn steal-tx [owner stealer price]
-  (let [->icon (fn [u] [:span.ui.circular.label.empty {:style {:background-color (str "#" (subs u 2 8))}}])
+(defn steal-tx [owner stealer price block]
+  (let [->icon (fn [u] [:span.ui.circular.horizontal.label.empty {:style {:background-color (str "#" (subs u 2 8))}}])
         [icon-owner icon-stealer] (map ->icon  [owner stealer])]
     [:div
-     icon-stealer
-     [:i.angle.double.right.icon]
-     [:span.ui.label.orange.mini (str (web3-core/from-wei price "finney")) " Finney"]
-     [:i.angle.double.right.icon]
-     icon-owner]))
+     [:p
+      icon-stealer
+      [:i.angle.double.right.icon]
+      [:span.ui.horizontal.label.orange.tiny (str (web3-core/from-wei price "finney")) " Finney"]
+      [:i.angle.double.right.icon]
+      icon-owner]
+     [:div @(rf/subscribe [:time-block block])]]))
 
 (defn twitto-item [{:keys [id_str name screen_name description profile_image_url_https owner stealer price stealable?]}]
   [:div.column
@@ -47,7 +49,7 @@
      [:div.header name]
      [:div.meta.orange-text "@" screen_name]]]])
 
-(defn twitto-item' [{:keys [id_str name screen_name description profile_image_url_https owner stealer price stealable?]}]
+(defn twitto-item' [{:keys [id_str name screen_name description profile_image_url_https owner stealer price block stealable?]}]
   [:div.item
    [:a.ui.image.tiny
     [:img {:src (.replace profile_image_url_https "_normal" "")}]]
@@ -59,7 +61,7 @@
       [:div.description description])
     [:div.extra
      (if stealer
-       [steal-tx owner stealer price])
+       [steal-tx owner stealer price block])
      (if stealable?
        [:div.ui.action.input.fluid
         [:input {:type "text" :placeholder "Set next price in Finney"
