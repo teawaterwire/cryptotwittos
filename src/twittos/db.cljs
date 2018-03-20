@@ -2,7 +2,7 @@
 
 (def default-db
   {:web3 js/web3
-   :network-id :5777
+   :network-id (keyword js/web3.version.network)
    :instance nil
    :query ""
    :steals '()
