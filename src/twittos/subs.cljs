@@ -76,6 +76,6 @@
  (fn [[price-wei next-price]]
    (try
      (not
-      (.. (web3-core/to-big-number next-price)
-          (gt (web3-core/from-wei price-wei "finney"))))
+      (-> ^js (web3-core/to-big-number next-price)
+          (.gt (web3-core/from-wei price-wei "finney"))))
      (catch js/Object e true))))

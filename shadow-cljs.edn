@@ -24,8 +24,8 @@
                               day8.re-frame.trace.preload]
                    }
         :compiler-options {
-                           ; :infer-externs :auto
-                           :optimizations :none
+                           :infer-externs :auto
+                           ; :optimizations :none
                            :closure-defines {re-frame.trace.trace-enabled? true}
                            ; :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
                            ; :preloads [day8.re-frame-10x.preload]
