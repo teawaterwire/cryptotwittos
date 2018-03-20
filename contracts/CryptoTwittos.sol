@@ -102,6 +102,8 @@ contract CryptoTwittos is Ownable, Pausable, Destructible {
   }
 
   function withdraw() public onlyOwner {
+
+    // Transfer balance to owner
     msg.sender.transfer(address(this).balance);
   }
 

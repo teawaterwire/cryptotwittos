@@ -158,11 +158,9 @@
                                   :block-filter-opts {:from-block 0 :to-block "latest"}
                                   :on-success [:new-steal]}]}}))
 
-;; Watch owned steals so that they trigger a [:get-trophies]
-
 (rf/reg-event-fx
  :new-steal
- (fn [{db :db} [_ {:keys [id price new-price] :as steal} {:keys [block-hash]}]]
+ (fn [{db :db} [_ {:keys [id price new-price owner] :as steal} {:keys [block-hash]}]]
    (let [new-steals (conj (:steals db)
                           (merge steal {:block block-hash
                                         :id (str id)
@@ -174,12 +172,23 @@
       :web3/call {:web3 (:web3 db)
                   :fns [{:fn web3-eth/get-block
                          :args [block-hash]
-                         :on-success [:block-details]}]}
+                         :on-success [:block-details]}
+                        {:fn web3-eth/coinbase
+                         :on-success [:refresh-trophies owner]}]}
       :dispatch-debounce [{:id :lookup-twitter
                            :timeout 400
                            :action :dispatch-n
                            :event (concat [[:lookup-twitter id-strs]]
                                           (for [id-str id-strs] [:lookup-twitto id-str]))}]})))
+
+(rf/reg-event-fx
+ :refresh-trophies
+ (fn [_ [_ owner coinbase]]
+   (when (= owner coinbase)
+     {:dispatch-debounce [{:id :refresh-trophies
+                           :timeout 500
+                           :action :dispatch
+                           :event [:get-trophies]}]})))
 
 (rf/reg-event-db
  :block-details
