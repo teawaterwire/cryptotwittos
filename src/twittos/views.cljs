@@ -82,7 +82,7 @@
 (defn search-col []
   [:div.column
    [:h2.ui.dividing.header
-    [:img.ui.image.logo {:src "/img/twittos.png"}]
+    [:img.ui.image.logo {:src "img/twittos.png"}]
     "Crypto" [:span.orange-text "Twittos"]
     [:div.ui.sub.header "Steal 'Em All"]]
    [search-bar]
@@ -120,5 +120,4 @@
    [:div.row
     [search-col]
     [trophies-col]
-    [steals-col]
-    [:div.column]]])
+    [steals-col]]])
