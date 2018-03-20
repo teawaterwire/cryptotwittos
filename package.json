@@ -15,7 +15,8 @@
   "devDependencies": {
     "lite-server": "^2.3.0",
     "react-flip-move": "^3.0.1",
-    "shadow-cljs": "^2.2.3"
+    "shadow-cljs": "^2.2.3",
+    "zeppelin-solidity": "1.7.0"
   },
   "dependencies": {
     "create-react-class": "^15.6.3",

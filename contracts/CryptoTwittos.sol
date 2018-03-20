@@ -1,8 +1,12 @@
 pragma solidity ^0.4.19;
 
+import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+import 'zeppelin-solidity/contracts/lifecycle/Destructible.sol';
+import 'zeppelin-solidity/contracts/lifecycle/Pausable.sol';
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
-contract CryptoTwittos {
-
+contract CryptoTwittos is Ownable, Pausable, Destructible {
+  using SafeMath for uint;
 
   // A Twitto is owned by a stealer and has a price
   struct Twitto {
@@ -61,7 +65,7 @@ contract CryptoTwittos {
   }
 
   // Steal a Twitto by paying its price and setting a new one
-  function steal(uint id, uint256 newPrice) payable public {
+  function steal(uint id, uint256 newPrice) payable whenNotPaused public {
 
     // look up the twitto and put on storage
     Twitto storage _twitto = twittos[id];
@@ -77,7 +81,7 @@ contract CryptoTwittos {
 
     // Transfer value
     if (msg.value > 0) {
-      _twitto.stealer.transfer(msg.value);
+      _twitto.stealer.transfer(msg.value.mul(99).div(100));
     }
 
     // Push new Twitto if not existing
@@ -95,6 +99,10 @@ contract CryptoTwittos {
     // Store new price
     _twitto.price = newPrice;
 
+  }
+
+  function withdraw() public onlyOwner {
+    msg.sender.transfer(address(this).balance);
   }
 
 

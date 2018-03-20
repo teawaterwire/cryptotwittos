@@ -69,7 +69,7 @@
  (fn [{db :db} [_ id-strs]]
    (let [twitteros-id-strs-set (set (keys (:twitteros db)))
          id-strs-remaining (remove twitteros-id-strs-set id-strs)]
-     (if (empty? id-strs) {}
+     (if (empty? id-strs-remaining) {}
        {:http-xhrio {:method :get
                      :uri (str db/twitter-lookup-url (str/join "," id-strs-remaining))
                      :response-format (ajax/json-response-format {:keywords? true})

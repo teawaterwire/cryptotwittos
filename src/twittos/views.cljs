@@ -75,7 +75,6 @@
 
 (defn results-items []
   [:div.ui.divided.items
-  ; [:div.ui.two.column.grid
    (for [{:keys [id_str] :as result} @(rf/subscribe [:results])]
      ^{:key id_str}
      [twitto-item' result])])
