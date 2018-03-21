@@ -88,10 +88,12 @@
     [:div.ui.sub.header "Steal 'Em All"]]
    (if (nil? @(rf/subscribe [:get :web3]))
      [:div.ui.massive.orange.message
-      [:div.header "MetaMask is missing"]
-      [:p "Get it "
-       [:a {:href "https://metamask.io/" :target "_blank"} "here "]
-       " to get started."]]
+      [:div.header "Connection to an Ethereum node is required"]
+      [:p "Get "
+       [:a {:href "https://metamask.io/" :target "_blank"} "MetaMask"]
+       " if you're on desktop — "
+       [:a {:href "https://www.cipherbrowser.com/" :target "_blank"} "Cipher"]
+       " if you're on mobile."]]
      [search-bar])
    [results-items]])
 
