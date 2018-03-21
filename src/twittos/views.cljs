@@ -104,7 +104,7 @@
      [:strong @(rf/subscribe [:trophies-value])]]
     [:div.ui.sub.header
      "1000 Finney (F) = 1 Ether"]]
-   [:div.ui.cards.two.column.relaxed.grid
+   [:div.ui.cards.two.column.relaxed.stackable.grid
     (for [{:keys [id_str] :as trophy} @(rf/subscribe [:trophies])
           :when (some? id_str)]
       ^{:key id_str}

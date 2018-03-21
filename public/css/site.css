@@ -22,3 +22,10 @@
   float: left;
   top: -5px;
 }
+
+@media only screen and (max-width: 767px) {
+  .ui.items:not(.unstackable) > .item > .image,
+  .ui.items:not(.unstackable) > .item > .image > img {
+    max-height: 100px !important;
+  }
+}
