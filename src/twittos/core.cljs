@@ -15,6 +15,7 @@
   (js/console.log "...done!"))
 
 (defn ^:export init []
-  (rf/dispatch-sync [:init])
-  (rf/dispatch [:get-contract])
+  (when (exists? js/web3)
+    (rf/dispatch-sync [:init])
+    (rf/dispatch [:get-contract]))
   (mount!))

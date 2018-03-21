@@ -42,7 +42,7 @@
 (defn twitto-item [{:keys [id_str name screen_name description profile_image_url_https owner stealer price stealable?]}]
   [:div.column
    [:div.ui.card.fluid
-    [:div.ui.image
+    [:a.image {:href (str "//twitter.com/" screen_name) :target "_blank"}
      [:div.ui.right.ribbon.label.green @(rf/subscribe [:get-price id_str])]
      [:img {:src (.replace profile_image_url_https "_normal" "")}]]
     [:div.content
@@ -52,6 +52,7 @@
 (defn twitto-item' [{:keys [id_str name screen_name description profile_image_url_https owner stealer price block stealable?]}]
   [:div.item
    [:a.ui.image.tiny
+    {:href (str "//twitter.com/" screen_name) :target "_blank"}
     [:img {:src (.replace profile_image_url_https "_normal" "")}]]
    [:div.content
     [:div.header name]
@@ -85,7 +86,13 @@
     [:img.ui.image.logo {:src "img/twittos.png"}]
     "Crypto" [:span.orange-text "Twittos"]
     [:div.ui.sub.header "Steal 'Em All"]]
-   [search-bar]
+   (if (nil? @(rf/subscribe [:get :web3]))
+     [:div.ui.massive.orange.message
+      [:div.header "MetaMask is missing"]
+      [:p "Get it "
+       [:a {:href "https://metamask.io/" :target "_blank"} "here "]
+       " to get started."]]
+     [search-bar])
    [results-items]])
 
 (defn trophies-col []

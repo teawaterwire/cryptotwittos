@@ -3,3 +3,4 @@ node_modules
 public/js
 .shadow-cljs
 .DS_STORE
+.nrepl-port

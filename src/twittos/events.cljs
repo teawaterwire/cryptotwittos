@@ -137,13 +137,12 @@
                          :tx-opts {:from (web3-eth/coinbase (:web3 db))
                                    :value (get-in db [:twittos id-str :price] 0)}
                          :on-tx-success [:get-trophies]
-                         :on-tx-error [:steal-error]
                          :on-tx-receipt [:steal-end id-str]}]}})))
 
 (rf/reg-event-fx
  :steal-end
  (fn [_ [_ id-str]]
-   {:dispatch-n [[:set :stealing? id-str false] [:get-trophies]]}))
+   {:dispatch-n [[:set :stealing? id-str false]]}))
 
 ;; -------------------
 ;; EVENTS

@@ -79,7 +79,7 @@ contract CryptoTwittos is Ownable, Pausable, Destructible {
     // Make sure that the new price is higher than the old price
     require(newPrice > _twitto.price);
 
-    // Transfer value
+    // Transfer value with the 1% dev fee
     if (msg.value > 0) {
       _twitto.stealer.transfer(msg.value.mul(99).div(100));
     }
