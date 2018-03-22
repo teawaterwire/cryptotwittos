@@ -1,6 +1,7 @@
 (ns twittos.views
   (:require [re-frame.core :as rf]
             [cljs-web3.core :as web3-core]
+            [twittos.owner :refer [owner-only]]
             [twittos.timer :refer [clock]]))
 
 (defn search-bar []
@@ -127,6 +128,7 @@
 
 (defn main []
   [:div.ui.stackable.three.column.relaxed.grid
+   [owner-only]
    [:div.row
     [search-col]
     [trophies-col]

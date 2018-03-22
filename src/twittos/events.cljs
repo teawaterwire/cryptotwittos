@@ -35,6 +35,10 @@
          address (get-in networks [network-id :address])
          instance (web3-eth/contract-at web3 abi address)]
      {:db (assoc db :instance instance)
+      :web3/call {:web3 web3
+                  :fns [{:instance instance
+                         :fn :owner
+                         :on-success [:set :owner]}]}
       :dispatch-n [[:get-trophies]
                    [:watch-steals]]})))
 
@@ -134,8 +138,7 @@
                   :fns [{:instance (:instance db)
                          :fn :steal
                          :args [id-str price]
-                         :tx-opts {:from (web3-eth/coinbase (:web3 db))
-                                   :value (get-in db [:twittos id-str :price] 0)}
+                         :tx-opts {:value (get-in db [:twittos id-str :price] 0)}
                          :on-tx-success [:get-trophies]
                          :on-tx-receipt [:steal-end id-str]}]}})))
 
@@ -193,3 +196,21 @@
  :block-details
  (fn [db [_ {:keys [hash timestamp]}]]
    (assoc-in db [:blocks hash] timestamp)))
+
+;; -------------------
+;; OWNER ONLY
+;; -------------------
+
+(rf/reg-event-fx
+ :pause
+ (fn [{db :db} [_ pause?]]
+   {:web3/call {:web3 (:web3 db)
+                :fns [{:instance (:instance db)
+                       :fn (if pause? :pause :unpause)}]}}))
+
+(rf/reg-event-fx
+ :withdraw
+ (fn [{db :db} [_ pause?]]
+   {:web3/call {:web3 (:web3 db)
+                :fns [{:instance (:instance db)
+                       :fn :withdraw}]}}))
