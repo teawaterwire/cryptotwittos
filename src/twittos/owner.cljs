@@ -2,7 +2,9 @@
   (:require [re-frame.core :as rf]))
 
 (defn owner-only []
-  (if (= @(rf/subscribe [:get :owner]) js/web3.eth.coinbase)
+  (if (and
+       (exists? js/web3)
+       (= @(rf/subscribe [:get :owner]) js/web3.eth.coinbase))
     [:div.row
      [:div.column.grey
       [:button.ui.orange.button
