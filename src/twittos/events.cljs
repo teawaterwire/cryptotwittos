@@ -168,7 +168,7 @@
                                         :id (str id)
                                         :price (str price)
                                         :new-price (str new-price)}))
-         new-db (assoc db :steals (->> new-steals (distinct) (take 20)))
+         new-db (assoc db :steals (->> new-steals (distinct) (take 25)))
          id-strs (distinct (map #(str (:id %)) (:steals new-db)))]
      {:db new-db
       :web3/call {:web3 (:web3 db)
