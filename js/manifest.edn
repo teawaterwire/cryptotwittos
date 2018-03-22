@@ -90,6 +90,7 @@
    "cljs/core/async.cljs"
    "cljs_web3/utils.cljs"
    "cljs_web3/core.cljs"
+   "twittos/owner.cljs"
    "twittos/timer.cljs"
    "twittos/views.cljs"
    "twittos/subs.cljs"
