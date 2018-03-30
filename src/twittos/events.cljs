@@ -34,13 +34,13 @@
    (let [{:keys [abi contractName networks]} artifact
          address (get-in networks [network-id :address])
          instance (web3-eth/contract-at web3 abi address)]
-     {:db (assoc db :instance instance)
+     {:db (assoc db :instance instance :contract-address address)
       :web3/call {:web3 web3
                   :fns [{:instance instance
                          :fn :owner
                          :on-success [:set :owner]}]}
       :dispatch-n [[:get-trophies]
-                   [:watch-steals]]})))
+                   [:watch-steals-config]]})))
 
 ;; -------------------
 ;; TROPHIES
@@ -152,13 +152,24 @@
 ;; -------------------
 
 (rf/reg-event-fx
+ :watch-steals-config
+ (fn [{{:keys [contract-address network-id]} :db}]
+   (if (= network-id :1)
+     {:http-xhrio {:method :get
+                   :uri (str db/etherscan-lookup-url "?page=25&address=" contract-address)
+                   :response-format (ajax/json-response-format {:keywords? true})
+                   :on-success [:watch-steals]}}
+     {:dispatch [:watch-steals {}]})))
+
+(rf/reg-event-fx
  :watch-steals
- (fn [{:keys [db]}]
-   {:web3/watch-events {:events [{:id :steals-watcher
-                                  :event :stealEvent
-                                  :instance (:instance db)
-                                  :block-filter-opts {:from-block 0 :to-block "latest"}
-                                  :on-success [:new-steal]}]}}))
+ (fn [{:keys [db]} [_ etherscan-result]]
+   (let [from-block (get-in etherscan-result [:result 0 :blockNumber] 0)]
+     {:web3/watch-events {:events [{:id :steals-watcher
+                                    :event :stealEvent
+                                    :instance (:instance db)
+                                    :block-filter-opts {:from-block from-block :to-block "latest"}
+                                    :on-success [:new-steal]}]}})))
 
 (rf/reg-event-fx
  :new-steal
