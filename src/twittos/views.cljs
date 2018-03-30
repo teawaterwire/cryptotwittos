@@ -88,10 +88,6 @@
     "Crypto" [:span.orange-text "Twittos"]
     [:div.ui.sub.header "Steal 'Em All"]]
    [:h4 "Steal virtual ownership of Twitter accounts and set the price someone has to pay to steal them back from you. First steals are free. Game on!"]
-   [:div.ui.message.green
-    "CryptoTwittos currently featured on "
-    [:a {:href "https://www.producthunt.com/posts/cryptotwittos" :target "_blank"} "Product Hunt"]
-    " 🙌"]
    (if (nil? @(rf/subscribe [:get :web3]))
      [:div.ui.massive.orange.message
       [:div.header "Connection to an Ethereum node is required"]
