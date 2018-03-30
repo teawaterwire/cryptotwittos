@@ -178,7 +178,7 @@
                         {:fn web3-eth/coinbase
                          :on-success [:refresh-trophies owner]}]}
       :dispatch-debounce [{:id :lookup-twitter
-                           :timeout 400
+                           :timeout 500
                            :action :dispatch-n
                            :event (concat [[:lookup-twitter id-strs]]
                                           (for [id-str id-strs] [:lookup-twitto id-str]))}]})))
@@ -188,7 +188,7 @@
  (fn [_ [_ owner coinbase]]
    (when (= owner coinbase)
      {:dispatch-debounce [{:id :refresh-trophies
-                           :timeout 500
+                           :timeout 700
                            :action :dispatch
                            :event [:get-trophies]}]})))
 
