@@ -1,6 +1,7 @@
 (ns twittos.subs
   (:require [re-frame.core :as rf]
             [clojure.string :as str]
+            [cljs-web3.eth :as web3-eth]
             [cljs-web3.core :as web3-core]))
 
 (rf/reg-sub
@@ -79,3 +80,11 @@
       (-> ^js (web3-core/to-big-number next-price)
           (.gt (web3-core/from-wei price-wei "finney"))))
      (catch js/Object e true))))
+
+(rf/reg-sub
+ :owner?
+ :<- [:get :web3]
+ :<- [:get :owner]
+ (fn [[web3 owner]]
+   (if web3
+     (= owner (web3-eth/coinbase web3)))))

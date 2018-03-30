@@ -2,6 +2,7 @@
 
 (def default-db
   (merge {:instance nil
+          :owner ""
           :query ""
           :steals '()}
          (if (exists? js/web3)
