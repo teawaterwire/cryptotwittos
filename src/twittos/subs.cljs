@@ -24,10 +24,13 @@
 (rf/reg-sub
  :trophies
  :<- [:get :trophies]
+ :<- [:get :stolen-trophies]
  :<- [:get :twitteros]
- (fn [[trophies twitteros]]
+ (fn [[trophies stolen-trophies twitteros]]
    (if-not (empty? twitteros)
-     (map #(get twitteros %) trophies))))
+     (->> trophies
+          (remove (set stolen-trophies))
+          (map #(get twitteros %))))))
 
 (rf/reg-sub
  :results

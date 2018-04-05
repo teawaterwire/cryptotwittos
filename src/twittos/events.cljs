@@ -46,8 +46,9 @@
 ;; TROPHIES
 ;; -------------------
 
+;; Unfortunately we cannot rely on this constant contract call with geth
 (rf/reg-event-fx
- :get-trophies
+ :get-trophies1
  (fn [{:keys [db]}]
    {:web3/call {:web3 (:web3 db)
                 :fns [{:instance (:instance db)
@@ -59,10 +60,45 @@
 (rf/reg-event-fx
  :get-trophies-success
  (fn [{db :db} [_ ids]]
-   (let [id-strs (reverse (map str ids))]
-     {:db (assoc db :trophies id-strs)
-      :dispatch [:lookup-twitter id-strs]
-      :dispatch-n (for [id-str id-strs] [:lookup-twitto id-str])})))
+   {:db (assoc db :trophies ids)
+    :dispatch [:lookup-twitter ids]
+    :dispatch-n (for [id-str ids] [:lookup-twitto id-str])}))
+
+;; Necessary workaround because of the issue with the constant call
+(rf/reg-event-fx
+ :get-trophies
+ (fn [{{:keys [instance coinbase]} :db}]
+   (if (some? coinbase)
+     {:web3/watch-events {:events [{:id :new-trophies-watcher
+                                    :event :stealEvent
+                                    :instance instance
+                                    :block-filter-opts {:from-block 0 :to-block "latest"}
+                                    :event-filter-opts {:stealer coinbase}
+                                    :on-success [:new-trophy]}
+                                   {:id :stolen-trophies-watcher
+                                    :event :stealEvent
+                                    :instance instance
+                                    :block-filter-opts {:from-block 0 :to-block "latest"}
+                                    :event-filter-opts {:owner coinbase}
+                                    :on-success [:stolen-trophy]}]}})))
+
+(rf/reg-event-fx
+ :new-trophy
+ (fn [{db :db} [_ {:keys [id]}]]
+   (let [ids (distinct (conj (:trophies db) (str id)))]
+     {:db (assoc db :trophies ids)
+      :dispatch-debounce [{:id :get-trophies-success
+                           :timeout 800
+                           :action :dispatch
+                           :event [:get-trophies-success ids]}]})))
+
+(rf/reg-event-db
+ :stolen-trophy
+ (fn [{:keys [stolen-trophies] :as db} [_ {:keys [id]}]]
+   (let [id' (str id)
+         action (if (contains? stolen-trophies id') disj conj)
+         new-stolen-trophies (action stolen-trophies id')]
+     (assoc db :stolen-trophies new-stolen-trophies))))
 
 ;; -------------------
 ;; LOOKUP
@@ -139,7 +175,7 @@
                          :fn :steal
                          :args [id-str price]
                          :tx-opts {:value (get-in db [:twittos id-str :price] 0)}
-                         :on-tx-success [:get-trophies]
+                         ; :on-tx-success [:get-trophies]
                          :on-tx-receipt [:steal-end id-str]}]}})))
 
 (rf/reg-event-fx
@@ -185,23 +221,12 @@
       :web3/call {:web3 (:web3 db)
                   :fns [{:fn web3-eth/get-block
                          :args [block-hash]
-                         :on-success [:block-details]}
-                        {:fn web3-eth/coinbase
-                         :on-success [:refresh-trophies owner]}]}
+                         :on-success [:block-details]}]}
       :dispatch-debounce [{:id :lookup-twitter
                            :timeout 500
                            :action :dispatch-n
                            :event (concat [[:lookup-twitter id-strs]]
                                           (for [id-str id-strs] [:lookup-twitto id-str]))}]})))
-
-(rf/reg-event-fx
- :refresh-trophies
- (fn [_ [_ owner coinbase]]
-   (when (= owner coinbase)
-     {:dispatch-debounce [{:id :refresh-trophies
-                           :timeout 700
-                           :action :dispatch
-                           :event [:get-trophies]}]})))
 
 (rf/reg-event-db
  :block-details
