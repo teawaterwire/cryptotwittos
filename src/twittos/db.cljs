@@ -6,6 +6,7 @@
   (merge {:instance nil
           :owner ""
           :query ""
+          :stolen-trophies #{}
           :steals '()}
          (if (exists? js/web3)
            {:web3 js/web3

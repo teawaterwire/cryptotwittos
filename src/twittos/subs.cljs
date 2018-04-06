@@ -29,7 +29,7 @@
  (fn [[trophies stolen-trophies twitteros]]
    (if-not (empty? twitteros)
      (->> trophies
-          (remove (set stolen-trophies))
+          (remove stolen-trophies)
           (map #(get twitteros %))))))
 
 (rf/reg-sub
