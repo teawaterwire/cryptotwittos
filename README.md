@@ -1,5 +1,6 @@
 # CryptoTwittos – Steal 'Em All 
-> Own Twitter accounts, on the Ethereum blockchain
+> Own Twitter accounts, on the Ethereum blockchain — https://cryptotwittos.com/
+
 
 ## Preview
 ![prev](https://cdn.glitch.com/adf48ce6-540b-4676-a419-bce8f7d438e8%2FScreen%20Shot%202018-03-21%20at%2016.58.24.png?1521647997382)
