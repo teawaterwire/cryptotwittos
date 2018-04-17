@@ -94,7 +94,7 @@
       [:p "Get "
        [:a {:href "https://metamask.io/" :target "_blank"} "MetaMask"]
        " if you're on desktop — "
-       [:a {:href "https://www.cipherbrowser.com/" :target "_blank"} "Cipher"]
+       [:a {:href "http://www.toshi.org/" :target "_blank"} "Toshi"]
        " if you're on mobile."]]
      [search-bar])
    [results-items]])
