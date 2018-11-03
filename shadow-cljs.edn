@@ -5,12 +5,13 @@
  :dependencies
  [[reagent "0.8.0-alpha2"]
   [re-frame "0.10.5"]
-  [cljs-web3 "0.19.0-0-9"]
-  [district0x.re-frame/web3-fx "1.0.3"]
+  [cljs-web3 "0.19.0-0-11"]
+  [district0x.re-frame/web3-fx "1.0.4"]
   [day8.re-frame/http-fx "0.1.5"]
   [com.7theta/re-frame-fx "0.2.0"]
   [day8.re-frame/trace "0.1.19-react16"]
-  [cljs-ajax "0.7.3"]]
+  [cljs-ajax "0.7.3"]
+  [thheller/shadow-cljsjs "0.0.15"]]
 
  :builds
  {:app {:target :browser

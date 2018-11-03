@@ -1,9 +1,11 @@
 (ns twittos.core
-  (:require [reagent.core :as reagent]
+  (:require [cljsjs.web3]
+            [reagent.core :as reagent]
             [re-frame.core :as rf]
             [twittos.views :as views]
             [twittos.subs]
             [twittos.events]
+            [twittos.effects]
             [day8.re-frame.http-fx]
             [district0x.re-frame.web3-fx]
             [re-frame-fx.dispatch]))
@@ -14,7 +16,5 @@
                   (js/document.getElementById "app")))
 
 (defn ^:export init []
-  (when (exists? js/web3)
-    (rf/dispatch-sync [:init])
-    (rf/dispatch [:get-contract]))
+  (rf/dispatch-sync [:init])
   (mount!))

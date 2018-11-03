@@ -8,7 +8,7 @@
   [:div.ui.massive.fluid.input.action.mt1
    [:input {:type "text" :placeholder "Search for Twittos"
             :value @(rf/subscribe [:get :query])
-            :on-key-down #(if (= (.-which %) 13) (rf/dispatch [:search-twitter]))
+            :on-key-down #(if (#{"Enter"} (.-key %)) (rf/dispatch [:search-twitter]))
             :on-change #(rf/dispatch [:set :query (.. % -target -value)])}]
    [:button.ui.icon.button.orange
     {:on-click #(rf/dispatch [:search-twitter])
@@ -90,11 +90,11 @@
    [:h4 "Steal virtual ownership of Twitter accounts and set the price someone has to pay to steal them back from you. First steals are free. Game on!"]
    (if (nil? @(rf/subscribe [:get :web3]))
      [:div.ui.massive.orange.message
-      [:div.header "Connection to an Ethereum node is required"]
-      [:p "Get "
+      [:div.header "Loading connection to an Ethereum node..."]
+      [:p "Connect to " [:strong "Portis"] "." [:br] "Or get "
        [:a {:href "https://metamask.io/" :target "_blank"} "MetaMask"]
        " if you're on desktop — "
-       [:a {:href "http://www.toshi.org/" :target "_blank"} "Toshi"]
+       [:a {:href "https://wallet.coinbase.com/" :target "_blank"} "Coinbase Wallet"]
        " if you're on mobile."]]
      [search-bar])
    [results-items]])
@@ -109,10 +109,12 @@
     [:div.ui.sub.header
      "1000 Finney (F) = 1 Ether"]]
    [:div.ui.cards.two.column.relaxed.stackable.grid
-    (for [{:keys [id_str] :as trophy} @(rf/subscribe [:trophies])
-          :when (some? id_str)]
-      ^{:key id_str}
-      [twitto-item trophy])]])
+    (if-let [trophies @(rf/subscribe [:trophies])]
+      (for [{:keys [id_str] :as trophy} trophies
+            :when (some? id_str)]
+        ^{:key id_str}
+        [twitto-item trophy])
+      [:div.mt1 "The Twittos you steal will appear here."])]])
 
 (defn steals-col []
   [:div.column
@@ -120,11 +122,13 @@
     "Live Steals"
     [:div.ui.sub.header
      [clock]]]
-   [:div.ui.divided.items
-    (for [{:keys [id_str new-price] :as stolen-twitto} @(rf/subscribe [:stolen-twittos])
-          :when (some? id_str)]
-      ^{:key (str id_str new-price)}
-      [twitto-item' stolen-twitto])]])
+   (if (empty? @(rf/subscribe [:get :steals]))
+     [:div.mt1 "Loading last stolen Twittos..."]
+     [:div.ui.divided.items
+      (for [{:keys [id_str new-price] :as stolen-twitto} @(rf/subscribe [:stolen-twittos])
+            :when (some? id_str)]
+        ^{:key (str id_str new-price)}
+        [twitto-item' stolen-twitto])])])
 
 (defn main []
   [:div.ui.stackable.three.column.relaxed.grid

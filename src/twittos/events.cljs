@@ -6,10 +6,23 @@
             [cljs-web3.eth :as web3-eth]
             [clojure.string :as str]))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :init
  (fn []
-   db/default-db))
+   {:db db/default-db
+    :enable-web3 [:post-init]}))
+
+(rf/reg-event-fx
+ :post-init
+ (fn []
+   {:dispatch-later [{:ms 600 :dispatch [:post-init-delayed]}]}))
+
+(rf/reg-event-fx
+ :post-init-delayed
+ [(rf/inject-cofx :web3)]
+ (fn [{:keys [web3-details db]}]
+   {:db (merge db web3-details)
+    :dispatch [:get-contract]}))
 
 (rf/reg-event-db
  :set
@@ -174,7 +187,8 @@
                   :fns [{:instance (:instance db)
                          :fn :steal
                          :args [id-str price]
-                         :tx-opts {:value (get-in db [:twittos id-str :price] 0)}
+                         :tx-opts {:value (get-in db [:twittos id-str :price] 0)
+                                   :gas 157496}
                          ; :on-tx-success [:get-trophies]
                          :on-tx-receipt [:steal-end id-str]}]}})))
 
