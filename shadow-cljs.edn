@@ -10,8 +10,7 @@
   [day8.re-frame/http-fx "0.1.5"]
   [com.7theta/re-frame-fx "0.2.0"]
   [day8.re-frame/trace "0.1.19-react16"]
-  [cljs-ajax "0.7.3"]
-  [thheller/shadow-cljsjs "0.0.15"]]
+  [cljs-ajax "0.7.3"]]
 
  :builds
  {:app {:target :browser
