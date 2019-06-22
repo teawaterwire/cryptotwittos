@@ -1,8 +1,11 @@
 (ns twittos.views
   (:require [re-frame.core :as rf]
+            [clojure.string :as str]
             [cljs-web3.core :as web3-core]
             [twittos.owner :refer [owner-only]]
             [twittos.timer :refer [clock]]))
+
+(defn ->normal [img-url] (some-> img-url (str/replace "_normal" "")))
 
 (defn search-bar []
   [:div.ui.massive.fluid.input.action.mt1
@@ -19,7 +22,8 @@
   [:div.ui.cards
    (for [{:keys [id_str name screen_name description profile_image_url_https]}
          @(rf/subscribe [:get :results])
-         :let [image-url (.replace profile_image_url_https "_normal" "")]]
+         :let [image-url (->normal profile_image_url_https)]
+         :when (some? id_str)]
      ^{:key id_str}
      [:div.card
       [:div.content
@@ -45,7 +49,7 @@
    [:div.ui.card.fluid
     [:a.image {:href (str "//twitter.com/" screen_name) :target "_blank"}
      [:div.ui.right.ribbon.label.green @(rf/subscribe [:get-price id_str])]
-     [:img {:src (.replace profile_image_url_https "_normal" "")}]]
+     [:img {:src (->normal profile_image_url_https)}]]
     [:div.content
      [:div.header name]
      [:div.meta.orange-text "@" screen_name]]]])
@@ -54,7 +58,7 @@
   [:div.item
    [:a.ui.image.tiny
     {:href (str "//twitter.com/" screen_name) :target "_blank"}
-    [:img {:src (.replace profile_image_url_https "_normal" "")}]]
+    [:img {:src (->normal profile_image_url_https)}]]
    [:div.content
     [:div.header name]
     [:div.ui.right.floated.label.green @(rf/subscribe [:get-price id_str])]
@@ -77,7 +81,8 @@
 
 (defn results-items []
   [:div.ui.divided.items
-   (for [{:keys [id_str] :as result} @(rf/subscribe [:results])]
+   (for [{:keys [id_str] :as result} @(rf/subscribe [:results])
+         :when (some? id_str)]
      ^{:key id_str}
      [twitto-item' result])])
 
