@@ -2,9 +2,9 @@
   (:require [re-frame.core :as rf]
             [cljs-web3.core :as web3-core]
             [cljs-web3.eth :as web3-eth]
-            ["portis" :refer (PortisProvider)]))
+            ["@portis/web3/es" :default Portis]))
 
-(defonce api-key "22126369e4329dcba29d062833d9d553")
+(defonce api-key "acff1db8-4af7-4dd8-8626-adeb65fd7ebd")
 
 (rf/reg-fx
  :enable-web3
@@ -21,10 +21,10 @@
                  (disp!))
        ;; Portis fallback
        :else (do
-               (set! js/web3 (new js/Web3 (PortisProvider. #js {:apiKey api-key :network "mainnet"})))
-               (web3-eth/accounts
-                 js/web3
-                 #(disp!)))))))
+               (let [portis (new Portis api-key "mainnet")]
+                 (set! js/web3 (new js/Web3 portis.provider))
+                 (.enable portis.provider)
+                 (.onLogin portis (fn [] (web3-core/version-network js/web3 #(disp!))))))))))
 
 (rf/reg-cofx
  :web3
